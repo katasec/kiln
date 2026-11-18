@@ -30,7 +30,7 @@ import (
 )
 
 func main() {
-    provider := xai.New(os.Getenv("XAI_API_KEY"), xai.ModelGrok4FastNonReasoning)
+    provider := xai.New(os.Getenv("XAI_API_KEY"), xai.ModelGrok47)
 
     agent, err := kiln.NewAgent(kiln.Config{
         Provider:     provider,
@@ -54,7 +54,7 @@ xAI also supports built-in web search and citation access:
 ```go
 provider := xai.New(
     os.Getenv("XAI_API_KEY"),
-    xai.ModelGrok4FastNonReasoning,
+    xai.ModelGrok47,
     xai.WithWebSearch(),
 )
 agent, err := kiln.NewAgent(kiln.Config{Provider: provider})

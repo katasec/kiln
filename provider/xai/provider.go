@@ -5,7 +5,7 @@
 //
 // Usage:
 //
-//	provider := xai.New(apiKey, xai.ModelGrok3Mini, xai.WithWebSearch())
+//	provider := xai.New(apiKey, xai.ModelGrok47, xai.WithWebSearch())
 package xai
 
 import (
