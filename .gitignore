@@ -1,2 +1,7 @@
 # macOS
 .DS_Store
+
+# Compiled example binaries. Each example is its own module, so `go build`
+# inside one leaves a binary named after its directory.
+/_examples/calculator/calculator
+/_examples/chat-console/chat-console
