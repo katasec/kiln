@@ -15,15 +15,15 @@ import (
 var _ kiln.Provider = (*AnthropicProvider)(nil)
 
 func TestNew(t *testing.T) {
-	p := New("test-key", ModelClaudeSonnet5)
+	p := New("test-key", ModelClaudeSonnet55)
 	if p == nil {
 		t.Fatal("New returned nil")
 	}
 	if p.apiKey != "test-key" {
 		t.Errorf("apiKey = %q, want %q", p.apiKey, "test-key")
 	}
-	if p.model != ModelClaudeSonnet5 {
-		t.Errorf("model = %q, want %q", p.model, ModelClaudeSonnet5)
+	if p.model != ModelClaudeSonnet55 {
+		t.Errorf("model = %q, want %q", p.model, ModelClaudeSonnet55)
 	}
 }
 
@@ -44,8 +44,8 @@ func TestGenerate(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode request: %v", err)
 		}
-		if req.Model != "claude-sonnet-5" {
-			t.Errorf("model = %q, want %q", req.Model, "claude-sonnet-5")
+		if req.Model != "claude-sonnet-5-5" {
+			t.Errorf("model = %q, want %q", req.Model, "claude-sonnet-5-5")
 		}
 		if len(req.System) != 1 || req.System[0].Text != "You are helpful." {
 			t.Errorf("system = %q, want %q", req.System, "You are helpful.")
@@ -55,7 +55,7 @@ func TestGenerate(t *testing.T) {
 			ID:         "msg_test",
 			Type:       "message",
 			Role:       "assistant",
-			Model:      "claude-sonnet-5",
+			Model:      "claude-sonnet-5-5",
 			Content:    []contentBlock{{Type: "text", Text: "Hello!"}},
 			StopReason: "end_turn",
 			Usage:      usageBlock{InputTokens: 10, OutputTokens: 5},
@@ -65,7 +65,7 @@ func TestGenerate(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelClaudeSonnet5, WithBaseURL(srv.URL))
+	p := New("test-key", ModelClaudeSonnet55, WithBaseURL(srv.URL))
 
 	resp, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		SystemPrompt: "You are helpful.",
@@ -98,7 +98,7 @@ func TestGenerateAPIError(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("bad-key", ModelClaudeSonnet5, WithBaseURL(srv.URL))
+	p := New("bad-key", ModelClaudeSonnet55, WithBaseURL(srv.URL))
 
 	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{message.UserText("Hi")},
@@ -144,7 +144,7 @@ func TestGenerateSendsToolsAndParsesToolUse(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
 			"id": "msg_test", "type": "message", "role": "assistant",
-			"model": "claude-sonnet-5", "stop_reason": "tool_use",
+			"model": "claude-sonnet-5-5", "stop_reason": "tool_use",
 			"content": []map[string]any{
 				{"type": "tool_use", "id": "toolu_1", "name": "search", "input": map[string]any{"query": "go"}},
 			},
@@ -153,7 +153,7 @@ func TestGenerateSendsToolsAndParsesToolUse(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelClaudeSonnet5, WithBaseURL(srv.URL))
+	p := New("test-key", ModelClaudeSonnet55, WithBaseURL(srv.URL))
 	resp, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{message.UserText("find something")},
 		Tools: []kiln.ToolDefinition{{
@@ -199,7 +199,7 @@ func TestGenerateSendsToolResults(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(&got)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
-			"id": "m", "type": "message", "role": "assistant", "model": "claude-sonnet-5",
+			"id": "m", "type": "message", "role": "assistant", "model": "claude-sonnet-5-5",
 			"stop_reason": "end_turn",
 			"content":     []map[string]any{{"type": "text", "text": "done"}},
 			"usage":       map[string]any{"input_tokens": 1, "output_tokens": 1},
@@ -207,7 +207,7 @@ func TestGenerateSendsToolResults(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelClaudeSonnet5, WithBaseURL(srv.URL))
+	p := New("test-key", ModelClaudeSonnet55, WithBaseURL(srv.URL))
 	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{
 			message.UserText("find something"),
@@ -241,14 +241,14 @@ func TestGenerateSendsToolResults(t *testing.T) {
 }
 
 func TestMaxTokensDefaultAndOverride(t *testing.T) {
-	if p := New("k", ModelClaudeSonnet5); p.maxTokens != defaultMaxTokens {
+	if p := New("k", ModelClaudeSonnet55); p.maxTokens != defaultMaxTokens {
 		t.Errorf("default maxTokens = %d, want %d", p.maxTokens, defaultMaxTokens)
 	}
-	if p := New("k", ModelClaudeSonnet5, WithMaxTokens(64000)); p.maxTokens != 64000 {
+	if p := New("k", ModelClaudeSonnet55, WithMaxTokens(64000)); p.maxTokens != 64000 {
 		t.Errorf("maxTokens = %d, want 64000", p.maxTokens)
 	}
 	// A non-positive value would make every request fail; it must be ignored.
-	if p := New("k", ModelClaudeSonnet5, WithMaxTokens(0)); p.maxTokens != defaultMaxTokens {
+	if p := New("k", ModelClaudeSonnet55, WithMaxTokens(0)); p.maxTokens != defaultMaxTokens {
 		t.Errorf("maxTokens = %d, want default retained for zero", p.maxTokens)
 	}
 }
@@ -259,7 +259,7 @@ func TestMaxTokensReachesTheWire(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(&got)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
-			"id": "m", "type": "message", "role": "assistant", "model": "claude-sonnet-5",
+			"id": "m", "type": "message", "role": "assistant", "model": "claude-sonnet-5-5",
 			"stop_reason": "end_turn",
 			"content":     []map[string]any{{"type": "text", "text": "hi"}},
 			"usage":       map[string]any{"input_tokens": 1, "output_tokens": 1},
@@ -267,7 +267,7 @@ func TestMaxTokensReachesTheWire(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelClaudeSonnet5, WithBaseURL(srv.URL), WithMaxTokens(2048))
+	p := New("test-key", ModelClaudeSonnet55, WithBaseURL(srv.URL), WithMaxTokens(2048))
 	if _, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{message.UserText("hi")},
 	}); err != nil {

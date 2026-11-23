@@ -66,7 +66,7 @@ func TestAnthropicToolLoopEndToEnd(t *testing.T) {
 		if turns == 1 {
 			json.NewEncoder(w).Encode(map[string]any{
 				"id": "m1", "type": "message", "role": "assistant",
-				"model": "claude-sonnet-5", "stop_reason": "tool_use",
+				"model": "claude-sonnet-5-5", "stop_reason": "tool_use",
 				"content": []map[string]any{{
 					"type": "tool_use", "id": "toolu_1", "name": "add",
 					"input": map[string]any{"a": 2, "b": 3},
@@ -77,7 +77,7 @@ func TestAnthropicToolLoopEndToEnd(t *testing.T) {
 		}
 		json.NewEncoder(w).Encode(map[string]any{
 			"id": "m2", "type": "message", "role": "assistant",
-			"model": "claude-sonnet-5", "stop_reason": "end_turn",
+			"model": "claude-sonnet-5-5", "stop_reason": "end_turn",
 			"content": []map[string]any{{"type": "text", "text": "The answer is 5."}},
 			"usage":   map[string]any{"input_tokens": 12, "output_tokens": 6},
 		})
@@ -92,7 +92,7 @@ func TestAnthropicToolLoopEndToEnd(t *testing.T) {
 		})
 
 	agent, err := kiln.NewAgent(kiln.Config{
-		Provider:      anthropic.New("test-key", anthropic.ModelClaudeSonnet5, anthropic.WithBaseURL(srv.URL)),
+		Provider:      anthropic.New("test-key", anthropic.ModelClaudeSonnet55, anthropic.WithBaseURL(srv.URL)),
 		Tools:         []kiln.Tool{add},
 		MaxIterations: 5,
 	})

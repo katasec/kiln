@@ -77,7 +77,7 @@ Use OpenAI by changing the provider import and constructor:
 ```go
 import "github.com/katasec/kiln/provider/openai"
 
-provider := openai.New(os.Getenv("OPENAI_API_KEY"), openai.ModelGPT54Nano)
+provider := openai.New(os.Getenv("OPENAI_API_KEY"), openai.ModelGPT6Luna)
 ```
 
 The `openai` package uses the OpenAI Responses API, including text and image content.

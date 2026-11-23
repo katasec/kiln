@@ -44,10 +44,10 @@ func buildProvider(name string) (kiln.Provider, func()) {
 	switch name {
 	case "anthropic":
 		key := requireEnv("ANTHROPIC_API_KEY")
-		return anthropic.New(key, anthropic.ModelClaudeOpus5), func() {}
+		return anthropic.New(key, anthropic.ModelClaudeOpus55), func() {}
 	case "openai":
 		key := requireEnv("OPENAI_API_KEY")
-		return openai.New(key, openai.ModelGPT54Nano), func() {}
+		return openai.New(key, openai.ModelGPT6Luna), func() {}
 	case "xai":
 		key := requireEnv("XAI_API_KEY")
 		return xai.New(key, xai.ModelGrok47), func() {}

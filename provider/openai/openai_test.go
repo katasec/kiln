@@ -16,7 +16,7 @@ import (
 var _ kiln.Provider = (*OpenAIProvider)(nil)
 
 func TestNew(t *testing.T) {
-	p := New("test-key", ModelGPT54Nano)
+	p := New("test-key", ModelGPT6Luna)
 	if p == nil {
 		t.Fatal("New returned nil")
 	}
@@ -26,8 +26,8 @@ func TestNew(t *testing.T) {
 	if p.apiKey != "test-key" {
 		t.Errorf("apiKey = %q, want test-key", p.apiKey)
 	}
-	if p.model != "gpt-5.4-nano" {
-		t.Errorf("model = %q, want gpt-5.4-nano", p.model)
+	if p.model != "gpt-6-luna" {
+		t.Errorf("model = %q, want gpt-6-luna", p.model)
 	}
 }
 
@@ -47,8 +47,8 @@ func TestGenerate(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode request: %v", err)
 		}
-		if req.Model != "gpt-5.4-nano" {
-			t.Errorf("model = %q, want gpt-5.4-nano", req.Model)
+		if req.Model != "gpt-6-luna" {
+			t.Errorf("model = %q, want gpt-6-luna", req.Model)
 		}
 		if req.Instructions != "You are helpful." {
 			t.Errorf("instructions = %q", req.Instructions)
@@ -86,7 +86,7 @@ func TestGenerate(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelGPT54Nano, WithBaseURL(srv.URL))
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
 
 	resp, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		SystemPrompt: "You are helpful.",
@@ -140,7 +140,7 @@ func TestGenerateWithImageURL(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelGPT54Nano, WithBaseURL(srv.URL))
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
 	resp, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{
 			message.UserMessage(
@@ -165,7 +165,7 @@ func TestGenerateNoMessages(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelGPT54Nano, WithBaseURL(srv.URL))
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
 
 	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{message.UserText("Hi")},
@@ -182,7 +182,7 @@ func TestGenerateAPIError(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelGPT54Nano, WithBaseURL(srv.URL))
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
 
 	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{message.UserText("Hi")},
@@ -261,7 +261,7 @@ func TestGenerateSendsToolsAndParsesFunctionCall(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelGPT54Nano, WithBaseURL(srv.URL))
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
 	resp, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{message.UserText("find something")},
 		Tools: []kiln.ToolDefinition{{
@@ -313,7 +313,7 @@ func TestGenerateSendsToolResults(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelGPT54Nano, WithBaseURL(srv.URL))
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
 	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{
 			message.UserText("find something"),
@@ -386,7 +386,7 @@ func TestGenerateReplaysAssistantHistory(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	p := New("test-key", ModelGPT54Nano, WithBaseURL(srv.URL))
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
 	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
 		Messages: []kiln.Message{
 			message.UserText("who made you?"),
