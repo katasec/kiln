@@ -7,7 +7,7 @@ Kiln handles the **LLM call -> tool execution -> response** cycle. You supply a 
 ## Install
 
 ```bash
-go get github.com/katasec/kiln@v0.4.0
+go get github.com/katasec/kiln@v0.9.0
 ```
 
 ## Quick Start
