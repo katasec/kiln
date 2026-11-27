@@ -175,6 +175,65 @@ func TestGenerateNoMessages(t *testing.T) {
 	}
 }
 
+// TestGenerateNoMessagesReportsReason covers an empty response that explains
+// itself. A model can end its turn inside an unclosed reasoning block, leaving
+// a well-formed response with no content; without the status and reason the
+// caller cannot tell that apart from an output cap or a content filter.
+func TestGenerateNoMessagesReportsReason(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{
+			"id": "resp_1",
+			"object": "response",
+			"status": "incomplete",
+			"incomplete_details": {"reason": "ended_in_reasoning"},
+			"output": [{"type":"message","role":"assistant","content":[{"type":"output_text","text":""}]}],
+			"usage": {"input_tokens": 221, "output_tokens": 1, "total_tokens": 222}
+		}`))
+	}))
+	defer srv.Close()
+
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
+
+	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
+		Messages: []kiln.Message{message.UserText("Hi")},
+	})
+	if err == nil {
+		t.Fatal("expected error for empty output")
+	}
+	if !strings.Contains(err.Error(), "incomplete") {
+		t.Errorf("error = %q, want it to name the status", err)
+	}
+	if !strings.Contains(err.Error(), "ended_in_reasoning") {
+		t.Errorf("error = %q, want it to name the reason", err)
+	}
+}
+
+// TestGenerateNoMessagesWithoutReason covers an empty response that offers no
+// reason: the status still goes in the error, and nothing is invented.
+func TestGenerateNoMessagesWithoutReason(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"id":"resp_1","object":"response","status":"completed","output":[],"usage":{}}`))
+	}))
+	defer srv.Close()
+
+	p := New("test-key", ModelGPT6Luna, WithBaseURL(srv.URL))
+
+	_, err := p.Generate(context.Background(), kiln.ProviderRequest{
+		Messages: []kiln.Message{message.UserText("Hi")},
+	})
+	if err == nil {
+		t.Fatal("expected error for empty output")
+	}
+	if !strings.Contains(err.Error(), "completed") {
+		t.Errorf("error = %q, want it to name the status", err)
+	}
+	if strings.Contains(err.Error(), "reason") {
+		t.Errorf("error = %q, want no reason clause when the API gives none", err)
+	}
+}
+
 func TestGenerateAPIError(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTooManyRequests)

@@ -54,7 +54,7 @@ func toOpenAITools(defs []kiln.ToolDefinition) []responses.ToolUnionParam {
 func providerResponse(apiResp *responses.Response) (*kiln.ProviderResponse, error) {
 	blocks := fromOpenAIOutput(apiResp)
 	if len(blocks) == 0 {
-		return nil, fmt.Errorf("no assistant messages in response")
+		return nil, emptyResponseError(apiResp)
 	}
 
 	return &kiln.ProviderResponse{
@@ -68,6 +68,26 @@ func providerResponse(apiResp *responses.Response) (*kiln.ProviderResponse, erro
 			TotalTokens:           int(apiResp.Usage.TotalTokens),
 		},
 	}, nil
+}
+
+// emptyResponseError explains a response that carried neither text nor tool
+// calls. The status and incomplete reason are the only account the API gives
+// of why -- an output cap, a content filter, or a model that ended its turn
+// inside an unclosed reasoning block all arrive here looking identical -- so
+// they belong in the error rather than in the response about to be discarded.
+// The reason is reported verbatim: a server may use one outside the set the
+// OpenAI schema documents.
+func emptyResponseError(apiResp *responses.Response) error {
+	status := string(apiResp.Status)
+	if status == "" {
+		status = "unknown"
+	}
+
+	if reason := apiResp.IncompleteDetails.Reason; reason != "" {
+		return fmt.Errorf("no assistant messages in response (status %s, reason %s)", status, reason)
+	}
+
+	return fmt.Errorf("no assistant messages in response (status %s)", status)
 }
 
 // toOpenAIMessages converts Kiln conversation messages into OpenAI response input items.
